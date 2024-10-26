@@ -1,5 +1,4 @@
-
-import msal from "@azure/msal-browser"
+import * as msal from "@azure/msal-browser"
 
 /*
  * Configuration object to be passed to MSAL instance on creation. 
@@ -8,16 +7,14 @@ import msal from "@azure/msal-browser"
  */
 
 
-const msalConfig = {
+export const msalConfig = {
     auth: {
 
-        clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply
+        clientId: "av09282819", // This is the ONLY mandatory field that you need to supply
       
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", //  Replace the placeholder with your tenant info
+        authority: "https://login.microsoftonline.com/av09282819", //  Replace the placeholder with your tenant info
 
-        // authority: "https://Enter_the_Tenant_Subdomain_Here.ciamlogin.com/", // Replace the placeholder with your tenant subdomain
-
-        redirectUri: '/', // You must register this URI on App Registration. Defaults to window.location.href e.g. http://localhost:3000/
+        redirectUri: 'http://localhost:5000/', // You must register this URI on App Registration. Defaults to window.location.href e.g. http://localhost:3000/
 
         navigateToLoginRequestUrl: true, // If "true", will navigate back to the original request location before processing the auth code response.
     },
@@ -27,6 +24,7 @@ const msalConfig = {
     },
     system: {
         loggerOptions: {
+            logLevel: msal.LogLevel.Verbose,
             loggerCallback: (level, message, containsPii) => {
                 if (containsPii) {
                     return;
@@ -44,8 +42,11 @@ const msalConfig = {
                     case msal.LogLevel.Warning:
                         console.warn(message);
                         return;
+                    default:
+                        console.warn(message);
                 }
             },
+            piiLoggingEnabled: false
         },
     },
 };
@@ -57,7 +58,7 @@ const msalConfig = {
  * https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#openid-connect-scopes
  */
 const loginRequest = {
-    scopes: [],
+    scopes: ["openId"]
 };
 
 /**

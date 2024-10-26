@@ -12,10 +12,13 @@ import { getBasename } from "./utils/helpers";
 
 // import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
-import { MsalAuthenticationTemplate } from "@azure/msal-react";
-import { InteractionType } from "@azure/msal-browser";
+import { MsalAuthenticationTemplate, MsalProvider } from "@azure/msal-react";
+import { InteractionType, PublicClientApplication } from "@azure/msal-browser";
+import { msalConfig } from "./AuthConfig";
 
 // refer https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
+
+const pca = new PublicClientApplication(msalConfig);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,13 +29,11 @@ const queryClient = new QueryClient({
   },
 });
 
-export function Example() {
-  const authRequest = {
-      scopes: ["openid", "profile"]
-  };
+const authRequest = {
+  scopes: ["openid", "profile"],
+};
 
-  
-function ErrorComponent({error}) {
+function ErrorComponent({ error }) {
   return <p>An Error Occurred: {error}</p>;
 }
 
@@ -40,28 +41,25 @@ function LoadingComponent() {
   return <p>Authentication in progress...</p>;
 }
 
-
 ReactDOM.render(
-  //<React.StrictMode>
-  <MsalAuthenticationTemplate 
-  interactionType={InteractionType.Popup} 
-  authenticationRequest={authRequest} 
-  errorComponent={ErrorComponent} 
-  loadingComponent={LoadingComponent}
->
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <BrowserRouter basename={getBasename()}>
-          <CssBaseline />
-          <ReactQueryDevtools initialIsOpen={true} />
-          <App />
-        </BrowserRouter>
-      </ThemeProvider>
-    </QueryClientProvider>
-
-    </MsalAuthenticationTemplate>,
-
-  //</React.StrictMode>
+  <MsalProvider instance={pca}>
+    <MsalAuthenticationTemplate
+      interactionType={InteractionType.Redirect}
+      authenticationRequest={authRequest}
+      errorComponent={ErrorComponent}
+      loadingComponent={LoadingComponent}
+    >
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <BrowserRouter basename={getBasename()}>
+            <CssBaseline />
+            <ReactQueryDevtools initialIsOpen={true} />
+            <App />
+          </BrowserRouter>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </MsalAuthenticationTemplate>
+  </MsalProvider>,
   document.getElementById("root")
 );
 
@@ -69,4 +67,3 @@ ReactDOM.render(
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
-}
